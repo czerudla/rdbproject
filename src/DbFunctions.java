@@ -10,7 +10,7 @@ import java.util.ArrayList;
  * Created by czerudla on 21.5.15.
  */
 public class DbFunctions {
-    private static String dbAdress = "jdbc:postgresql://147.230.21.34:5432/RDB2015_HofmanKozdebaChlum";
+    private static String dbAdress = "#";
     private static String dbLogin = "student";
     private static String dbPass = "student";
 
