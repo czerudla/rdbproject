@@ -121,7 +121,7 @@ public class DbFunctions {
         // 2015-05-13 -> 1431468000
         Date date = Date.valueOf(dateIn);
         Timestamp stamp = new Timestamp(date.getTime());
-        System.out.println(stamp.getTime()/1000);
+        // System.out.println(stamp.getTime()/1000);
         return stamp.getTime()/1000;
     }
 
