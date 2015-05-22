@@ -52,7 +52,7 @@ public class DbFunctions {
                 double accuracy = 0; //TODO accuracy
                 results.add(new SearchResultModel(date, val1, val2, device, accuracy));
             }
-            System.out.println(results.size());
+            System.out.println("Num of results: " + results.size());
             rs.close();
             query.close();
             conn.close();
@@ -80,7 +80,7 @@ public class DbFunctions {
                 String label = rs.getString("bod_popis");
                 points.add(new PointModel(id, x, y, label));
             }
-            System.out.println(points.size());
+            System.out.println("Num of points: " + points.size());
             rs.close();
             query.close();
             conn.close();
@@ -89,6 +89,32 @@ public class DbFunctions {
             System.exit(0);
         }
         return points;
+    }
+
+    public static ArrayList<DeviceModel> getDevices() {
+        ArrayList<DeviceModel> devices = new ArrayList<DeviceModel>();
+        try {
+            Class.forName("org.postgresql.Driver");
+            conn = DriverManager.getConnection(dbAdress, dbLogin, dbPass);
+            conn.setAutoCommit(false);
+
+            query = conn.createStatement();
+
+            ResultSet rs = query.executeQuery( "SELECT * FROM pristroj ;" );
+            while ( rs.next() ) {
+                String deviceId = rs.getString("pristroj_id");
+                String devicetype = rs.getString("pristroj_typ");
+                devices.add(new DeviceModel(deviceId, devicetype));
+            }
+            System.out.println("Num of devices: " + devices.size());
+            rs.close();
+            query.close();
+            conn.close();
+        } catch ( Exception e ) {
+            System.err.println( e.getClass().getName()+": "+ e.getMessage() );
+            System.exit(0);
+        }
+        return devices;
     }
 
     public static float dateToTimestamp(String dateIn) {

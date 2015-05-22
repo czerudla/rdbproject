@@ -2,6 +2,7 @@ import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
 
 /**
  * Created by czerudla on 22.5.15.
@@ -11,6 +12,7 @@ public class FrontEnd extends JFrame {
     private JButton selectFileButton;
     private JTable table1;
     private JPanel rootPanel;
+    private JComboBox comboBox1;
 
     public FrontEnd() {
         super("Magicka aplikace");
@@ -32,6 +34,12 @@ public class FrontEnd extends JFrame {
         dtm.setColumnIdentifiers(header);
 
         table1.setModel(dtm);
+
+        ArrayList<PointModel> points = DbFunctions.getPoints();
+        while (points.size() >0) {
+            comboBox1.addItem(points.remove(0).getLabel());
+        }
+        comboBox1.setVisible(true);
 
         // add row dynamically into the table
         for (int count = 1; count <= 30; count++) {
