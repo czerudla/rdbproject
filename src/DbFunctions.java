@@ -143,6 +143,30 @@ public class DbFunctions {
         return mTypes;
     }
 
+    public static ArrayList<String> getUnits() {
+        ArrayList<String> units = new ArrayList<String>();
+        try {
+            Class.forName("org.postgresql.Driver");
+            conn = DriverManager.getConnection(dbAdress, dbLogin, dbPass);
+            conn.setAutoCommit(false);
+
+            query = conn.createStatement();
+
+            ResultSet rs = query.executeQuery( "SELECT DISTINCT velicina FROM mereni ;" );
+            while ( rs.next() ) {
+                units.add(rs.getString("velicina"));
+            }
+            System.out.println("Num of units: " + units.size());
+            rs.close();
+            query.close();
+            conn.close();
+        } catch ( Exception e ) {
+            System.err.println( e.getClass().getName()+": "+ e.getMessage() );
+            System.exit(0);
+        }
+        return units;
+    }
+
     public static float dateToTimestamp(String dateIn) {
         // 2015-05-13 -> 1431468000
         Date date = Date.valueOf(dateIn);

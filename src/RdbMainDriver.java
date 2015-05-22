@@ -12,6 +12,7 @@ public class RdbMainDriver {
         DbFunctions.getPoints();
         DbFunctions.getDevices();
         DbFunctions.getMeasurementTypes();
+        DbFunctions.getUnits();
     }
 
 }
