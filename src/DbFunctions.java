@@ -32,6 +32,7 @@ public class DbFunctions {
     }
 
     public static ArrayList<SearchResultModel> selectByDate(String dateFrom, String dateTo) {
+        // selectByDate("2015-05-13", "2015-05-13")
         ArrayList<SearchResultModel> results = new ArrayList<SearchResultModel>();
         try {
             Class.forName("org.postgresql.Driver");
