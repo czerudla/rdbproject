@@ -117,6 +117,32 @@ public class DbFunctions {
         return devices;
     }
 
+    public static ArrayList<MeasurementTypeModel> getMeasurementTypes() {
+        ArrayList<MeasurementTypeModel> mTypes = new ArrayList<MeasurementTypeModel>();
+        try {
+            Class.forName("org.postgresql.Driver");
+            conn = DriverManager.getConnection(dbAdress, dbLogin, dbPass);
+            conn.setAutoCommit(false);
+
+            query = conn.createStatement();
+
+            ResultSet rs = query.executeQuery( "SELECT * FROM typ_mereni ;" );
+            while ( rs.next() ) {
+                int mId = rs.getInt("typ_mereni_id");
+                String mDesc = rs.getString("typ_mereni_popis");
+                mTypes.add(new MeasurementTypeModel(mId, mDesc));
+            }
+            System.out.println("Num of measurement types: " + mTypes.size());
+            rs.close();
+            query.close();
+            conn.close();
+        } catch ( Exception e ) {
+            System.err.println( e.getClass().getName()+": "+ e.getMessage() );
+            System.exit(0);
+        }
+        return mTypes;
+    }
+
     public static float dateToTimestamp(String dateIn) {
         // 2015-05-13 -> 1431468000
         Date date = Date.valueOf(dateIn);

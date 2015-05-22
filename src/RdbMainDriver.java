@@ -11,6 +11,7 @@ public class RdbMainDriver {
         DbFunctions.selectByDate("2015-05-13", "2015-05-13");
         DbFunctions.getPoints();
         DbFunctions.getDevices();
+        DbFunctions.getMeasurementTypes();
     }
 
 }
