@@ -16,6 +16,8 @@ public class RdbMainDriver {
 
         DbFunctions.deleteSelectedDevice("AMPER METER 1");
         DbFunctions.deleteSelectedMeasurement("Measurement desc 4");
+
+        DbFunctions.exportResult(DbFunctions.selectByDate("2015-05-13", "2015-05-13"), "Output.txt");
     }
 
 }

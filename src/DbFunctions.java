@@ -1,7 +1,10 @@
 import org.postgresql.copy.CopyManager;
 import org.postgresql.core.BaseConnection;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.FileReader;
+import java.io.IOException;
 import java.sql.*;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -49,7 +52,7 @@ public class DbFunctions {
                 int date = rs.getInt("datum_cas");
                 double val1 = rs.getDouble("hodnota_1");
                 double val2 = rs.getDouble("hodnota_2");
-                String device = rs.getString("pristroj_id");
+                String device = rs.getString("pristroj_typ");
                 double accuracy = 0; //TODO accuracy
                 results.add(new SearchResultModel(date, val1, val2, device, accuracy));
             }
@@ -62,6 +65,39 @@ public class DbFunctions {
             System.exit(0);
         }
         return results;
+    }
+
+    public static void exportResult(ArrayList<SearchResultModel> myData, String outputFilePath) {
+        File file = new File(outputFilePath);
+
+        try (FileOutputStream fop = new FileOutputStream(file)) {
+            if (!file.exists()) {
+                file.createNewFile();
+            }
+
+            StringBuilder sb = new StringBuilder();
+
+            while(myData.size()>0) {
+                SearchResultModel myModel = myData.remove(0);
+                sb.append(myModel.getDate()).append(";").
+                        append(myModel.getVal1()).append(";").
+                        append(myModel.getVal2()).append(";").
+                        append(myModel.getValDiff()).append(";").
+                        append(myModel.getDevice()).append(";").
+                        append(myModel.getAccuracy()).append("\n");
+                fop.write(sb.toString().getBytes());
+                sb.replace(0, sb.length(), "");
+            }
+            // TODO zkusit vymyslet neco lepsiho nez tenhle zapis do souboru
+
+            fop.flush();
+            fop.close();
+
+            System.out.println("Done");
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public static ArrayList<PointModel> getPoints() {
