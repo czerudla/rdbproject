@@ -3,18 +3,18 @@
  */
 public class DeviceModel {
     private String deviceId;
-    private String devicetype;
+    private String deviceType;
 
-    public DeviceModel(String deviceId, String deviceModel) {
+    public DeviceModel(String deviceId, String deviceType) {
         this.deviceId = deviceId;
-        this.devicetype = deviceModel;
+        this.deviceType = deviceType;
     }
 
     public String getDeviceId() {
         return deviceId;
     }
 
-    public String getDeviceModel() {
-        return devicetype;
+    public String getDeviceType() {
+        return deviceType;
     }
 }
