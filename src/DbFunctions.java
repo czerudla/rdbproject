@@ -190,4 +190,44 @@ public class DbFunctions {
         return sdf.format(date);
     }
 
+    public static void deleteSelectedDevice(String deviceType) {
+        try {
+            Class.forName("org.postgresql.Driver");
+            conn = DriverManager.getConnection(dbAdress, dbLogin, dbPass);
+            conn.setAutoCommit(false);
+
+            query = conn.createStatement();
+
+            String sql = "DELETE FROM pristroj where pristroj_typ = '" + deviceType + "';";
+            query.executeUpdate(sql);
+            conn.commit();
+
+            query.close();
+            conn.close();
+        } catch ( Exception e ) {
+            System.err.println( e.getClass().getName()+": "+ e.getMessage() );
+            System.exit(0);
+        }
+    }
+
+    public static void deleteSelectedMeasurement(String measurementDesc) {
+        try {
+            Class.forName("org.postgresql.Driver");
+            conn = DriverManager.getConnection(dbAdress, dbLogin, dbPass);
+            conn.setAutoCommit(false);
+
+            query = conn.createStatement();
+
+            String sql = "DELETE FROM typ_mereni where typ_mereni_popis = '" + measurementDesc + "';";
+            query.executeUpdate(sql);
+            conn.commit();
+
+            query.close();
+            conn.close();
+        } catch ( Exception e ) {
+            System.err.println( e.getClass().getName()+": "+ e.getMessage() );
+            System.exit(0);
+        }
+    }
+
 }

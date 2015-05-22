@@ -4,7 +4,7 @@ public class RdbMainDriver {
 
     public static void main(String[] args) throws IOException {
 
-        //DbFunctions.copyDataToDatabase("src/test.csv1431527571.txt");
+        DbFunctions.copyDataToDatabase("src/test.csv1431527571.txt");
 
         FrontEnd f = new FrontEnd();
 
@@ -13,6 +13,9 @@ public class RdbMainDriver {
         DbFunctions.getDevices();
         DbFunctions.getMeasurementTypes();
         DbFunctions.getUnits();
+
+        DbFunctions.deleteSelectedDevice("AMPER METER 1");
+        DbFunctions.deleteSelectedMeasurement("Measurement desc 4");
     }
 
 }
