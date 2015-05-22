@@ -10,9 +10,9 @@ import java.util.ArrayList;
  * Created by czerudla on 21.5.15.
  */
 public class DbFunctions {
-    private static String dbAdress = "#";
-    private static String dbLogin = "student";
-    private static String dbPass = "student";
+    private static String dbAdress = DbAccess.getDbAdress();
+    private static String dbLogin = DbAccess.getDbLogin();
+    private static String dbPass = DbAccess.getDbPass();
 
     private static Connection conn = null;
     private static Statement query = null;
