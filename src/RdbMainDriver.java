@@ -8,8 +8,8 @@ public class RdbMainDriver {
 
         FrontEnd f = new FrontEnd();
 
-        System.out.println(DbFunctions.timestampToDate(1432679265));
-        System.out.println(DbFunctions.timestampToFullDate(1432679265));
+        //System.out.println(DbFunctions.timestampToDate(1432679265));
+        //System.out.println(DbFunctions.timestampToFullDate(1432679265));
 
         /*
         DbFunctions.selectByDate("2015-05-13", "2015-05-13");

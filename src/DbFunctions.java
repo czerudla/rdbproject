@@ -52,9 +52,10 @@ public class DbFunctions {
                 int date = rs.getInt("datum_cas");
                 double val1 = rs.getDouble("hodnota_1");
                 double val2 = rs.getDouble("hodnota_2");
+                double valDifference = rs.getDouble("hodnota_rozdil");
                 String device = rs.getString("pristroj_typ");
                 double accuracy = rs.getDouble("pristroj_presnost");
-                results.add(new SearchResultModel(date, val1, val2, device, accuracy));
+                results.add(new SearchResultModel(date, val1, val2, valDifference, device, accuracy));
             }
             System.out.println("Num of results: " + results.size());
             rs.close();
@@ -69,7 +70,7 @@ public class DbFunctions {
 
     private static String getStatement(String dateFrom, String dateTo, String valDiff,
                                        String measurementDesc, String deviceType, String pointLabel, String mUnit) {
-        String statement = "SELECT datum_cas, hodnota_1, hodnota_2, pristroj_typ, pristroj_presnost FROM view_all "; // TODO hodnota_rozdil
+        String statement = "SELECT datum_cas, hodnota_1, hodnota_2, hodnota_rozdil, pristroj_typ, pristroj_presnost FROM view_all "; // TODO hodnota_rozdil
         String st1 = null, st2 = null, st3 = null, st4 = null, st5 = null, st6 = null, st7 = null;
 
         //TODO PRASE. jsem PRASE....

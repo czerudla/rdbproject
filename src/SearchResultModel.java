@@ -9,11 +9,11 @@ public class SearchResultModel {
     private String device;
     private double accuracy;
 
-    public SearchResultModel(int date, double val1, double val2, String device, double accuracy) {
+    public SearchResultModel(int date, double val1, double val2, double valDiff, String device, double accuracy) {
         this.date = date;
         this.val1 = val1;
         this.val2 = val2;
-        this.valDiff = Math.abs(val1 - val2);
+        this.valDiff = valDiff;
         this.device = device;
         this.accuracy = accuracy;
     }
