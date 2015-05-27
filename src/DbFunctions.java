@@ -1,10 +1,7 @@
 import org.postgresql.copy.CopyManager;
 import org.postgresql.core.BaseConnection;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
 import java.sql.*;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -20,6 +17,8 @@ public class DbFunctions {
     private static Connection conn = null;
     private static Statement query = null;
 
+    private static String exportStatement = null;
+
     public static void copyDataToDatabase(String filename) {
         try {
             Class.forName("org.postgresql.Driver");
@@ -34,26 +33,27 @@ public class DbFunctions {
         }
     }
 
-    public static ArrayList<SearchResultModel> selectByDate(String dateFrom, String dateTo) {
-        // selectByDate("2015-05-13", "2015-05-13")
-        ArrayList<SearchResultModel> results = new ArrayList<SearchResultModel>();
+    public static ArrayList<SearchResultModel> selectByAllValues(String dateFrom, String dateTo, String valDiff,
+                                                                 String measurementDesc, String deviceType, String pointLabel, String unit) {
+        ArrayList<SearchResultModel> results = new ArrayList<>();
         try {
             Class.forName("org.postgresql.Driver");
             conn = DriverManager.getConnection(dbAdress, dbLogin, dbPass);
             conn.setAutoCommit(false);
 
-            int from = (int)dateToTimestamp(dateFrom); // od 00:00:00
-            int to = (int)dateToTimestamp(dateTo)+86399; // do 23:59:59 (86400 je sekund za den)
-
             query = conn.createStatement();
 
-            ResultSet rs = query.executeQuery( "SELECT * FROM view_all WHERE (datum_cas >= " + from + " AND datum_cas <= " + to + ") ;" );
+            String statement = getStatement(dateFrom, dateTo, valDiff, measurementDesc, deviceType, pointLabel, unit);
+
+            System.out.println(statement);
+
+            ResultSet rs = query.executeQuery(statement);
             while ( rs.next() ) {
                 int date = rs.getInt("datum_cas");
                 double val1 = rs.getDouble("hodnota_1");
                 double val2 = rs.getDouble("hodnota_2");
                 String device = rs.getString("pristroj_typ");
-                double accuracy = 0; //TODO accuracy
+                double accuracy = rs.getDouble("pristroj_presnost");
                 results.add(new SearchResultModel(date, val1, val2, device, accuracy));
             }
             System.out.println("Num of results: " + results.size());
@@ -67,41 +67,96 @@ public class DbFunctions {
         return results;
     }
 
-    public static void exportResult(ArrayList<SearchResultModel> myData, String outputFilePath) {
-        File file = new File(outputFilePath);
+    private static String getStatement(String dateFrom, String dateTo, String valDiff,
+                                       String measurementDesc, String deviceType, String pointLabel, String mUnit) {
+        String statement = "SELECT datum_cas, hodnota_1, hodnota_2, pristroj_typ, pristroj_presnost FROM view_all "; // TODO hodnota_rozdil
+        String st1 = null, st2 = null, st3 = null, st4 = null, st5 = null, st6 = null, st7 = null;
 
-        try (FileOutputStream fop = new FileOutputStream(file)) {
-            if (!file.exists()) {
-                file.createNewFile();
-            }
+        //TODO PRASE. jsem PRASE....
 
-            StringBuilder sb = new StringBuilder();
+        int from = Integer.MIN_VALUE;
+        if (dateFrom != "") {
+            from = (int)dateToTimestamp(dateFrom); // od 00:00:00
+            st1 = " datum_cas >= " + from + " ";
+        }
 
-            while(myData.size()>0) {
-                SearchResultModel myModel = myData.remove(0);
-                sb.append(myModel.getDate()).append(";").
-                        append(myModel.getVal1()).append(";").
-                        append(myModel.getVal2()).append(";").
-                        append(myModel.getValDiff()).append(";").
-                        append(myModel.getDevice()).append(";").
-                        append(myModel.getAccuracy()).append("\n");
-                fop.write(sb.toString().getBytes());
-                sb.replace(0, sb.length(), "");
-            }
-            // TODO zkusit vymyslet neco lepsiho nez tenhle zapis do souboru
+        int to = Integer.MIN_VALUE;
+        if (dateTo != "") {
+            to = (int) dateToTimestamp(dateTo) + 86399; // do 23:59:59 (86400 je sekund za den)
+            st2 = " datum_cas <= " + to + " ";
+        }
 
-            fop.flush();
-            fop.close();
+        double difference = Double.MIN_VALUE;
+        if (valDiff != "" && valDiff.length() > 0) {
+            difference = Double.parseDouble(valDiff);
+            st3 = " max_odchylka < " + difference + "22 ";
+        }
 
-            System.out.println("Done");
+        String measurement;
+        if (measurementDesc != "") {
+            measurement = measurementDesc;
+            st4 = " typ_mereni_popis = '" + measurement + "' ";
+        }
 
-        } catch (IOException e) {
-            e.printStackTrace();
+        String device;
+        if (deviceType != "") {
+            device = deviceType;
+            st5 = " pristroj_typ = '" + device + "' ";
+        }
+
+        String point;
+        if (pointLabel != "") {
+            point = pointLabel;
+            st6 = " bod_popis = '" + point + "' ";
+        }
+
+        String unit;
+        if (mUnit != "") {
+            unit = mUnit;
+            st7 = " velicina = '" + unit + "' ";
+        }
+
+        if (st1 != null || st2 != null || st3 != null || st4 != null || st5 != null || st6 != null || st7 != null)
+            statement = statement + "WHERE (";
+
+        if (st1 != null) statement = statement + st1;
+            if (st2 != null) statement = statement + " AND ";
+        if (st2 != null) statement = statement + st2;
+            if (st3 != null) statement = statement + " AND ";
+        if (st3 != null) statement = statement + st3;
+            if (st4 != null) statement = statement + " AND ";
+        if (st4 != null) statement = statement + st4;
+            if (st5 != null) statement = statement + " AND ";
+        if (st5 != null) statement = statement + st5;
+            if (st6 != null) statement = statement + " AND ";
+        if (st6 != null) statement = statement + st6;
+            if (st7 != null) statement = statement + " AND ";
+        if (st7 != null) statement = statement + st7;
+
+        if (st1 != null || st2 != null || st3 != null || st4 != null || st5 != null || st6 != null || st7 != null)
+            statement = statement + ")";
+
+        exportStatement = statement;
+        statement = statement + ";";
+        return statement;
+    }
+
+    public static void exportResults(String outputFilePath) {
+        try {
+            Class.forName("org.postgresql.Driver");
+            conn = DriverManager.getConnection(dbAdress, dbLogin, dbPass);
+            CopyManager copyManager = new CopyManager((BaseConnection) conn);
+            FileWriter fileWriter = new FileWriter(outputFilePath);
+            copyManager.copyOut("COPY (" + exportStatement + ") TO STDOUT WITH DELIMITER ';'", fileWriter);
+            conn.close();
+        } catch (Exception e) {
+            System.err.println( e.getClass().getName()+": "+ e.getMessage() );
+            System.exit(0);
         }
     }
 
     public static ArrayList<PointModel> getPoints() {
-        ArrayList<PointModel> points = new ArrayList<PointModel>();
+        ArrayList<PointModel> points = new ArrayList<>();
         try {
             Class.forName("org.postgresql.Driver");
             conn = DriverManager.getConnection(dbAdress, dbLogin, dbPass);
@@ -129,7 +184,7 @@ public class DbFunctions {
     }
 
     public static ArrayList<DeviceModel> getDevices() {
-        ArrayList<DeviceModel> devices = new ArrayList<DeviceModel>();
+        ArrayList<DeviceModel> devices = new ArrayList<>();
         try {
             Class.forName("org.postgresql.Driver");
             conn = DriverManager.getConnection(dbAdress, dbLogin, dbPass);
@@ -155,7 +210,7 @@ public class DbFunctions {
     }
 
     public static ArrayList<MeasurementTypeModel> getMeasurementTypes() {
-        ArrayList<MeasurementTypeModel> mTypes = new ArrayList<MeasurementTypeModel>();
+        ArrayList<MeasurementTypeModel> mTypes = new ArrayList<>();
         try {
             Class.forName("org.postgresql.Driver");
             conn = DriverManager.getConnection(dbAdress, dbLogin, dbPass);
@@ -181,7 +236,7 @@ public class DbFunctions {
     }
 
     public static ArrayList<String> getUnits() {
-        ArrayList<String> units = new ArrayList<String>();
+        ArrayList<String> units = new ArrayList<>();
         try {
             Class.forName("org.postgresql.Driver");
             conn = DriverManager.getConnection(dbAdress, dbLogin, dbPass);
@@ -221,7 +276,8 @@ public class DbFunctions {
 
     public static String timestampToFullDate(long unixSeconds) {
         //timestamp jsou sekundy od roku 1970, tahle funkce bere milisekundy -> unixSeconds*1000
-        Date date = new Date(unixSeconds);
+        Timestamp stamp = new Timestamp(unixSeconds*1000);
+        Date date = new Date(stamp.getTime());
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss z");
         return sdf.format(date);
     }
